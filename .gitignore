@@ -1,0 +1,52 @@
+# MATLAB specific files
+*.asv
+*.m~ 
+*.mlx~
+*.fig
+*.mat
+*.mex*
+*.mlappinstall
+*.mlpkginstall
+*.slxc
+*.slx
+*.mdl
+*.mdlp
+*.mexa64
+*.mexmaci64
+*.mexw64
+
+# MATLAB backup and autosave files
+*~ 
+*.asv
+
+# MATLAB code generation files
+codegen/
+slprj/
+*_grt_rtw/
+*_ert_rtw/
+
+# MATLAB app packaging files
+*.mlapp
+
+# MATLAB Simulink cache files
+*.slxc
+*.slx.autosave
+
+# MATLAB preferences and logs
+*.prj
+*.log
+
+# User-specific files
+*.user.mat
+*.user.settings
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.lock
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
