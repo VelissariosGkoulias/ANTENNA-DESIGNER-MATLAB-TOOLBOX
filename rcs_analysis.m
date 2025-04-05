@@ -4,6 +4,10 @@
 % files using the Antenna Designer Toolbox and calculate their Radar Cross
 % Section (RCS).
 
+clear;
+close all;
+clc;
+
 % --- 1. Define Simulation Parameters ---
 frequency = 1e9;       % Operating frequency (e.g., 1 GHz)
 incidentAnglePhi = 0;  % Incident angle in phi (azimuth)
@@ -12,12 +16,13 @@ incidentAngleTheta = 0; % Incident angle in theta (elevation)
 polarizations = {'HH', 'VV', 'HV', 'VH'};
 for p = 1:length(polarizations)
     polarization = polarizations{p};
+    disp(['--- Starting Polarization: ', polarization, ' ---']);
 
     % --- 2. Specify STL File Paths ---
     stlFiles = {
-        'aircraft_baseline.stl'; % Replace with your baseline aircraft STL file
-        'aircraft_modified1.stl'; % Replace with your first modified geometry
-        'aircraft_modified2.stl'; % Replace with your second modified geometry
+        'geometries/aircraft_baseline.stl'; % Replace with your baseline aircraft STL file
+        'geometries/aircraft_modified1.stl'; % Replace with your first modified geometry
+        'geometries/aircraft_modified2.stl'; % Replace with your second modified geometry
         % Add more STL file paths as needed
     };
 
@@ -30,12 +35,17 @@ for p = 1:length(polarizations)
         currentFile = stlFiles{i};
         fprintf('\n--- Processing Geometry: %s ---\n', currentFile);
 
+        % Check if the file exists
+        if ~isfile(currentFile)
+            error('File not found: %s', currentFile);
+        end
+
         try
             % Import geometry from STL file
             geometry = stlread(currentFile);
 
             % Create a custom antenna geometry object
-            customAntenna = customAntennaGeometry;
+            customAntenna = customAntennaGeometry(); % Add parentheses if it is a class
             customAntenna.Faces = geometry.ConnectivityList;
             customAntenna.Vertices = geometry.Points;
 
@@ -82,13 +92,13 @@ for p = 1:length(polarizations)
     end
 
     % --- 4. Visualize Geometries (Optional) ---
-    if (numGeometries > 0)
+    if numGeometries > 0
         % Dynamically calculate rows and columns for subplots
         numRows = ceil(sqrt(numGeometries));
         numCols = ceil(numGeometries / numRows);
 
         figure;
-        for (i = 1:numGeometries)
+        for i = 1:numGeometries
             subplot(numRows, numCols, i);
             if (~isempty(geometryObjects{i}))
                 show(geometryObjects{i});
@@ -106,7 +116,7 @@ for p = 1:length(polarizations)
 
     % --- 5. Compare RCS Values ---
     fprintf('\n--- RCS Comparison Summary ---\n');
-    for (i = 1:numGeometries)
+    for i = 1:numGeometries
         fprintf('  %s: ', stlFiles{i});
         if (~isnan(rcsValues{i}))
             fprintf('%.2f dBsm\n', rcsValues{i});
@@ -134,5 +144,5 @@ for p = 1:length(polarizations)
     fprintf('- **Overall Design Philosophy:** Consider the intended operational environment and the relevant radar threats when designing for stealth.\n');
 
     disp('Script execution complete.');
-    fprintf('Script execution complete at %s.\n', datestr(now));
+    disp(['--- Finished Polarization: ', polarization, ' ---']);
 end
