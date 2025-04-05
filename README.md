@@ -27,7 +27,7 @@ This repository contains a MATLAB script (`rcs_analysis.m`) that utilizes the An
 
 1.  **Clone the Repository:**
     ```bash
-    git clone [repository URL]
+    git clone https://github.com/VelissariosGkoulias/ANTENNA-DESIGNER-MATLAB-TOOLBOX.git
     cd rcs-calculation-matlab
     ```
 
@@ -60,16 +60,6 @@ The script provides a basic framework. For a more in-depth analysis, consider:
 
 Contributions to this project are welcome. If you have suggestions for improvements, bug fixes, or new features, please feel free to open an issue or submit a pull request.
 
-## License
+## Authors
 
-[Specify your license here, e.g., MIT License, Apache 2.0, etc.]
-
-## Acknowledgements
-
-* MATLAB and the Antenna Designer Toolbox by MathWorks.
-* The concept of Radar Cross Section and its importance in stealth technology.
-
-## Contact
-
-[Your Name]
-[Your Email Address (Optional)]
+* **Velissarios Gkoulias** - *Initial work* - (https://github.com/VelissariosGkoulias)
