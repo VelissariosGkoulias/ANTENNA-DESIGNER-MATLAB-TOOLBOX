@@ -49,6 +49,10 @@ for p = 1:length(polarizations)
             customAntenna.Faces = geometry.ConnectivityList;
             customAntenna.Vertices = geometry.Points;
 
+            if isempty(customAntenna.Faces) || isempty(customAntenna.Vertices)
+                error('Invalid geometry for file: %s', currentFile);
+            end
+
             % Example: Refine the mesh of the custom antenna geometry
             customAntenna = mesh(customAntenna, 'MaxEdgeLength', 0.01); % Adjust edge length as needed
 
@@ -58,27 +62,57 @@ for p = 1:length(polarizations)
             % Create a radar problem object using the Method of Moments (MoM) solver
             % This object is used to calculate the RCS of the target geometry
             radar = radarProblem('Solver', 'MoM', 'Frequency', frequency);
+            if isempty(radar)
+                error('Failed to create radar problem object.');
+            end
 
             % Add the custom antenna as a target
             target = customAntenna;
             add(radar, target);
 
-            % Calculate the monostatic RCS
-            [sigma, patterninfo] = rcs(radar, frequency, ...
-                'IncidentAngles', [incidentAnglePhi incidentAngleTheta], ...
-                'Polarization', polarization);
+            % Display radar problem object
+            disp(radar);
 
-            % Store the RCS value (in dBsm)
-            if (~isempty(sigma) && isnumeric(sigma) && sigma > 0)
-                rcs_dbsm = 10*log10(abs(sigma));
-                rcsValues{i} = rcs_dbsm;
-            else
-                warning('Invalid RCS value for file: %s', currentFile);
+            % Display custom antenna object
+            disp(customAntenna);
+
+            try
+                % Validate geometry
+                if isempty(customAntenna.Faces) || isempty(customAntenna.Vertices)
+                    error('Invalid geometry for file: %s', currentFile);
+                end
+
+                % Validate radar object
+                radar = radarProblem('Solver', 'MoM', 'Frequency', frequency);
+                if isempty(radar)
+                    error('Failed to create radar problem object.');
+                end
+
+                % Validate input parameters
+                fprintf('IncidentAngles: Phi=%.1f, Theta=%.1f\n', incidentAnglePhi, incidentAngleTheta);
+                fprintf('Polarization: %s\n', polarization);
+
+                % Calculate the monostatic RCS
+                [sigma, patterninfo] = rcs(radar, frequency, ...
+                    'IncidentAngles', [incidentAnglePhi incidentAngleTheta], ...
+                    'Polarization', polarization);
+
+                % Store the RCS value (in dBsm)
+                if (~isempty(sigma) && isnumeric(sigma) && sigma > 0)
+                    rcs_dbsm = 10*log10(abs(sigma));
+                    rcsValues{i} = rcs_dbsm;
+                else
+                    warning('Invalid RCS value for file: %s', currentFile);
+                    rcsValues{i} = NaN;
+                end
+
+                fprintf('  RCS at (Phi=%.1f deg, Theta=%.1f deg), Polarization=%s: %.2f dBsm\n', ...
+                    incidentAnglePhi, incidentAngleTheta, polarization, rcs_dbsm);
+
+            catch ME
+                warning('Error processing file: %s\nError Message: %s', currentFile, ME.message);
                 rcsValues{i} = NaN;
             end
-
-            fprintf('  RCS at (Phi=%.1f deg, Theta=%.1f deg), Polarization=%s: %.2f dBsm\n', ...
-                incidentAnglePhi, incidentAngleTheta, polarization, rcs_dbsm);
 
         catch ME
             warning('Error processing file: %s\nError Message: %s\nStack Trace:\n', ...
@@ -124,25 +158,8 @@ for p = 1:length(polarizations)
             fprintf('Error in RCS calculation\n');
         end
     end
-
-    % --- 6. Further Analysis and Stealth Geometry Proposal ---
-    fprintf('\n--- Next Steps ---\n');
-    fprintf('1. **Vary Incident Angles:** Modify the `incidentAnglePhi` and `incidentAngleTheta` variables and rerun the script to analyze RCS across different viewing angles. You can even create loops to sweep through a range of angles.\n');
-    fprintf('2. **Vary Frequency:** Change the `frequency` variable to observe how RCS changes with frequency.\n');
-    fprintf('3. **Analyze Bistatic RCS:** Explore the `bistaticrcs` function in the Antenna Toolbox to calculate RCS when the transmitter and receiver are at different locations.\n');
-    fprintf('4. **Refine Meshing (Advanced):** For more accurate results, especially at higher frequencies or for complex geometries, you might need to investigate mesh refinement techniques (though this is often handled automatically by the solver).\n');
-    fprintf('5. **Implement Optimization (Advanced):** Consider using optimization techniques (potentially outside the direct scope of this basic script) to automatically search for geometries with reduced RCS.\n');
-    fprintf('6. **Visualize RCS Patterns:** The `pattern` function (though primarily for radiation patterns) can sometimes be adapted or used in conjunction with RCS data for visualization.\n');
-    fprintf('7. **Document Your Findings:** Carefully document the geometries you tested, the simulation parameters used, and the resulting RCS values. Analyze how different geometric features (e.g., sharp edges, flat surfaces, curved shapes) affect the RCS.\n');
-    fprintf('8. **Propose Stealth Geometry:** Based on your analysis, propose a modified aircraft geometry that exhibits reduced RCS compared to your baseline model. Justify your design choices.\n');
-
-    % --- Important Considerations for Stealth Design ---
-    fprintf('\n--- Key Considerations for Stealth Design ---\n');
-    fprintf('- **Shape:** Avoid flat, perpendicular surfaces that strongly reflect radar waves back to the source. Use curved or angled surfaces to scatter the energy away.\n');
-    fprintf('- **Material:** While this script focuses on geometry, radar-absorbing materials (RAM) are crucial for real-world stealth. The Antenna Toolbox might have limited direct support for material properties in basic RCS calculations. You might need more specialized electromagnetic simulation software for detailed material analysis.\n');
-    fprintf('- **Edge Treatment:** Sharp edges can cause diffraction, increasing RCS. Blending edges or using specific shaping can help mitigate this.\n');
-    fprintf('- **Overall Design Philosophy:** Consider the intended operational environment and the relevant radar threats when designing for stealth.\n');
-
-    disp('Script execution complete.');
+    
     disp(['--- Finished Polarization: ', polarization, ' ---']);
+    disp('Script execution complete.');
+    
 end
