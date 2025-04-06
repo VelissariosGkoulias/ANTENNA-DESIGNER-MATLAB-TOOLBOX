@@ -59,10 +59,21 @@ figure(5)
 show(p)
 
 % Analysis parameters
-f2 = 7e9;
-m=mesh(p,MaxEdgeLength=0.0035);
-az = 0:1:180;
-el =0;
+f2=7e9;
+m=mesh(p,MaxEdgeLength=0.35);
+az=0:1:180;
+el=0;
+
+%% Check mesh number off triangles for sphere (128 at the moment with 0.35 MaxEdgeLength)
+% Assuming 'm' is the mesh object
+triang = m.Triangulation;  % Get the triangulation object
+
+% Now you can access the faces and vertices
+numTriangles = size(triang, 1);  % Number of triangles corresponds to rows in the triangulation
+
+% Display the result
+disp(['Number of triangles: ', num2str(numTriangles)]);
+
 
 % RCS Calculation with HH-Polarization
 sigmahh_po = rcs(p,f2,az,el,Solver="PO",EnableGPU=false,Polarization="HH");     
