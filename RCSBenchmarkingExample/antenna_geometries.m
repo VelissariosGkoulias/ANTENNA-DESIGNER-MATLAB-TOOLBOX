@@ -2,58 +2,60 @@ close all;
 clear;
 clc;
 
-% Cube (aircraft_baseline) RCS Parameters Setup
 lambda = 3.25e-2;
 f1 = physconst("lightspeed")/lambda;
-L = 10.16e-2;
-W = 10.16e-2;
+
+
+%% Cube (aircraft_baseline) RCS Parameters Setup
 p = platform;
-% Load and rescale
-stl = stlread('aircraft_baseline.stl');
-vertices = stl.Points / 100;  % Convert mm → dm
-faces = stl.ConnectivityList;
-p.Geometry = triangulation(faces, vertices); % Set geometry using triangulation
-p.Units = "m"; % Set units to meters
-figure(3)
+p.FileName = "aircraft_baseline.stl";
+p.Units = "mm";
+figure(1)
 show(p)
+title("Aircraft Baseline Model")
 
 % Analyze and Compare with Analytical result
 az = 0;
 el = 0.05:1:90;
 sigma = rcs(p,f1,az,el,Polarization="HH"); 
-asigma1 = rectPlateRCS(L,W,f1,az,90-el);
-figure(1)
+asigma1 = rectPlateRCS(1,1,f1,az,90-el);
+figure(2)
 plot(el,sigma,el,asigma1)
 grid on
 xlabel("Elevation angle (deg.)")
 ylabel("RCS - dBsm")
-title("Square Plate - Analytical vs Numerical PO")
+title("Cube (aircraft_baseline) - Analytical vs Numerical PO")
 legend("PO-Numerical","PO-Analytical","Location","best")
 
-% Cylinder (aircraft_modified1) RCS Parameters Setup
-R = 10.16e-2;
+
+%% Cylinder (aircraft_modified1) RCS Parameters Setup
+R = 1;
 pc = platform;
 pc.FileName = "aircraft_modified1.stl";
-pc.Units = "m";
+pc.Units = "cm";
+figure(3)
+show(pc)
+title("Aircraft Modified 1 Model")
 
 % Analyze and Compare with analytical result
 az = 0;
 el = 0.05:1:90;
 sigmaV = rcs(pc,f1,az,el,Polarization="HH"); 
 asigma1 = circPlateRCS(R,f1,90-el);
-figure(2)
+figure(4)
 plot(el,sigmaV,el,asigma1)
 grid on
 xlabel("Elevation angle (deg.)")
 ylabel("RCS - dBsm")
-title("Circular Plate - Analytical vs Numerical PO")
+title("Cylinder (aircraft_modified1) - Analytical vs Numerical PO")
 legend("PO-Numerical","PO-Analytical","Location","best")
 
-% Sphere (aircraft_modified2) Setup
+
+%% Sphere (aircraft_modified2) Setup
 p = platform;
 p.FileName = "aircraft_modified2.stl";
-p.Units = "m";
-figure(3)
+p.Units = "cm";
+figure(5)
 show(p)
 
 % Analysis parameters
@@ -69,3 +71,14 @@ sigmahh_mom = rcs(p,f2,az,el,Solver="MoM",Polarization="HH");
 % RCS Calculation with VV-Polarization
 sigmavv_po = rcs(p,f2,az,el,Solver="PO",EnableGPU=false,Polarization="VV");    
 sigmavv_mom = rcs(p,f2,az,el,'Solver','MoM','Polarization','VV');
+
+% Plot the results
+figure(6)
+plot(az,sigmahh_mom,az,sigmahh_po,az,sigmavv_mom,az,sigmavv_po,LineWidth=2)
+ax = gca;
+ax.YLim = [-70,-15]; 
+title("RCS Comparison, MoM vs. PO")
+xlabel("Azimuth, deg.")
+ylabel("Magnitude, dBsm")
+grid on
+legend("HH-pol, MoM","HH-pol, PO", "VV-pol, MoM","VV-pol, PO","Location","best")
