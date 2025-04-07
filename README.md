@@ -63,3 +63,9 @@ Contributions to this project are welcome. If you have suggestions for improveme
 ## Authors
 
 * **Velissarios Gkoulias** - *Initial work* - (https://github.com/VelissariosGkoulias)
+
+## Extra Material
+
+* https://www.mathworks.com/help/antenna/ug/radar-cross-section-benchmarking.html
+* https://github.com/UTAustinCEMGroup/AustinCEMBenchmarks/tree/master/Austin-RCS-Benchmarks/Problem%20III-Almonds/Problem%20Set%20IIIB-Solid%20Resin%20Almonds
+* https://github.com/UTAustinCEMGroup/AustinCEMBenchmarks/blob/ba9f243c3210eb3cda78f1bd18971c9c576c53ae/Austin-BioEM-Benchmarks/LICENSE.txt
