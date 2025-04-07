@@ -1,3 +1,6 @@
+%% RCS Benchmarking Example
+% Follow Mathworks ecxample and adjust it accordingly
+
 close all;
 clear;
 clc;
